@@ -1,0 +1,53 @@
+baseURL: "https://cloudpills.net/"   # cambierai con l'URL CloudFront dopo
+languageCode: "en-us"
+title: "CloudPills"
+theme: "PaperMod"
+
+pagination:
+  pagerSize: 10
+
+params:
+  env: production
+  title: CloudPills
+  description: "CloudPills for developers and architects"
+  keywords: [cloud, aws, devops, kubernetes]
+  author: "MaRu"
+
+  defaultTheme: auto
+  ShowReadingTime: true
+  ShowShareButtons: false
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowToc: true
+
+  homeInfoParams:
+    Title: "☁️ CloudPills"
+    Content: "CloudPills for developers and architects"
+
+  socialIcons:
+    - name: github
+      url: "https://github.com/tuousername"
+    - name: linkedin
+      url: "https://linkedin.com/in/tuousername"
+
+menu:
+  main:
+    - identifier: posts
+      name: Posts
+      url: /posts/
+      weight: 10
+    - identifier: tags
+      name: Tag
+      url: /tags/
+      weight: 20
+    - identifier: about
+      name: About
+      url: /about/
+      weight: 30
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON

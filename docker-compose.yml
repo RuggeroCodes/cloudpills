@@ -1,0 +1,24 @@
+services:
+
+  # Server di sviluppo con live reload
+  hugo-server:
+    image: hugomods/hugo:exts-non-root
+    container_name: cloudpills-server
+    volumes:
+      - .:/src
+    working_dir: /src
+    ports:
+      - "1313:1313"
+    command: hugo server --bind 0.0.0.0 --port 1313 -D
+    environment:
+      - HUGO_ENVIRONMENT=development
+
+  # Servizio one-shot per i comandi Hugo (new, build, ecc.)
+  hugo:
+    image: hugomods/hugo:exts-non-root
+    container_name: cloudpills-cli
+    volumes:
+      - .:/src
+    working_dir: /src
+    profiles:
+      - cli     # non parte con "up", si invoca solo esplicitamente
