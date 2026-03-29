@@ -1,0 +1,60 @@
+name: Publish CloudPills to AWS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:   # permette deploy manuale da GitHub UI
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive   # scarica il tema PaperMod
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: 'latest'
+          extended: true          # PaperMod richiede Hugo Extended
+
+      - name: Build site
+        run: hugo --minify --gc
+        env:
+          HUGO_ENVIRONMENT: production
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Sync static assets to S3 (con cache lunga)
+        run: |
+          aws s3 sync public/ s3://${{ secrets.S3_BUCKET }} \
+            --delete \
+            --cache-control "max-age=31536000, immutable" \
+            --exclude "*.html" \
+            --exclude "*.xml" \
+            --exclude "*.json"
+
+      - name: Sync HTML/XML/JSON to S3 (senza cache)
+        run: |
+          aws s3 sync public/ s3://${{ secrets.S3_BUCKET }} \
+            --delete \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --include "*.html" \
+            --include "*.xml" \
+            --include "*.json"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
